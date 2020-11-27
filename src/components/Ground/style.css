@@ -1,0 +1,33 @@
+.ground {
+  position: absolute;
+  height: 10vh;
+  width: 100vw;
+  top: 90vh;
+  background-color: #ded896;
+  margin-left: -8px;
+  border-top: 4px solid #553947;
+}
+
+.stripes {
+  border-top: 4px solid #e4fd8b;
+  height: 15px;
+  border-bottom: 4px solid #558023;
+  background: repeating-linear-gradient(-55deg, #73bf2e, #73bf2e 10px, #9ce659 10px, #9ce659 20px);
+  background-size: 25px 100%;
+  background-repeat: repeat-x;
+  background-position: 0% 0%;
+  box-shadow: 0 5px #d7a84c;
+}
+
+.stripes_moving {
+  animation: moving_stripes 2s linear infinite;
+}
+
+@keyframes moving_stripes {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: -50% 0%;
+  }
+}

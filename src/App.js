@@ -8,6 +8,7 @@ import birdAnimationState from './selectors/birdAnimation';
 import './App.css';
 import Bird from './components/Bird';
 import Pipe from './components/Pipe';
+import Ground from './components/Ground';
 
 function App() {
   const [started, setStarted] = useRecoilState(startedState);
@@ -26,6 +27,7 @@ function App() {
     <>
       <Bird />
       <Pipe />
+      <Ground />
     </>
   );
 }
