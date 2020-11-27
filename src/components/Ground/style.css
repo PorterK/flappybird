@@ -20,7 +20,7 @@
 }
 
 .stripes_moving {
-  animation: moving_stripes 2s linear infinite;
+  animation: moving_stripes 2.5s linear infinite;
 }
 
 @keyframes moving_stripes {
