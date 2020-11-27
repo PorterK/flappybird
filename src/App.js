@@ -18,7 +18,7 @@ function App() {
         setStarted(true);
         setAnimation('flying');
       }
-    },);
+    });
   }, []);
 
   return (
