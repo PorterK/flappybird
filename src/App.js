@@ -6,7 +6,8 @@ import startedState from './atoms/started';
 import birdAnimationState from './selectors/birdAnimation';
 
 import './App.css';
-import Bird from './Bird';
+import Bird from './components/Bird';
+import Pipe from './components/Pipe';
 
 function App() {
   const [started, setStarted] = useRecoilState(startedState);
@@ -22,7 +23,10 @@ function App() {
   }, []);
 
   return (
-    <Bird />
+    <>
+      <Bird />
+      <Pipe />
+    </>
   );
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useRecoilValue } from 'recoil';
 
-import birdState from '../../atoms/bird';
+import birdState from 'atoms/bird';
 
 import './style.css'
 
