@@ -5,7 +5,10 @@ const birdState = atom({
   default: {
     x: 0,
     y: 0,
+    targetY: 0,
     animation: 'floating',
+    direction: null,
+    movementAnimation: null,
   },
 });
 

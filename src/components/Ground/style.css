@@ -1,8 +1,10 @@
 .ground {
   position: absolute;
   height: 10vh;
+  height: calc(var(--vh, 1vh) * 10);
   width: 100vw;
   top: 90vh;
+  top: calc(var(--vh, 1vh) * 90);
   background-color: #ded896;
   margin-left: -8px;
   border-top: 4px solid #553947;
