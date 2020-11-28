@@ -24,7 +24,7 @@ export default function Bird() {
         if (bird.y > bird.targetY - 40) {
           moveY(5)
         } else {
-          moveY(10)
+          moveY(12)
           setMovementAnimation('up')
         }
       } else {
@@ -34,12 +34,12 @@ export default function Bird() {
 
     if (bird.direction === 'down') {
       if (bird.y > -((window.innerHeight / 2) - 115)) {
-        if (bird.y > bird.targetY - 40) {
+        if (bird.y > bird.targetY - 50) {
           moveY(-5);
         } else {
           moveY(-10);
           
-          if (bird.y > bird.targetY - 120) {
+          if (bird.y > bird.targetY - 200) {
             setMovementAnimation('down');
           }
         }
