@@ -1,52 +1,48 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 
+import { DRAG, GRAVITY } from 'constants.js';
 import birdState from 'atoms/bird';
+import startedState from 'atoms/started';
 import birdPositionState from 'selectors/birdPosition';
-import birdDirectionState from 'selectors/birdDirection';
+import birdSpeedState from 'selectors/birdSpeed';
 import birdMovementAnimation from 'selectors/birdMovementAnimation';
 
 import './style.css'
 
-export default function Bird() {
+function Bird() {
   const loop = useRef();
+  const birdRef = useRef();
 
   const bird = useRecoilValue(birdState);
-  const moveY = useSetRecoilState(birdPositionState);
-  const setDirection = useSetRecoilState(birdDirectionState);
+  const started = useRecoilValue(startedState);
+  const setY = useSetRecoilState(birdPositionState);
+  const setSpeed = useSetRecoilState(birdSpeedState);
   const setMovementAnimation = useSetRecoilState(birdMovementAnimation);
 
 
-  const update = (bird) => () => {
-    if (bird.direction === 'up') {
-      if (bird.y <= bird.targetY) {
-        if (bird.y > bird.targetY - 40) {
-          moveY(5)
-        } else {
-          moveY(12)
-          setMovementAnimation('up')
-        }
-      } else {
-        setDirection('down');
+  const update = (started, bird) => () => {
+    if (started) {
+      let speed = bird.speed;
+
+      speed += GRAVITY;
+      speed *= DRAG;
+
+      if (speed < 0 && bird.movementAnimation != 'up') {
+        setMovementAnimation('up');
       }
+
+      if (speed > 5 && bird.movementAnimation != 'down') {
+        setMovementAnimation('down');
+      }
+
+      setSpeed(speed);
+  
+      setY(bird.y + speed);
     }
 
-    if (bird.direction === 'down') {
-      if (bird.y > -((window.innerHeight / 2) - 115)) {
-        if (bird.y > bird.targetY - 50) {
-          moveY(-5);
-        } else {
-          moveY(-10);
-          
-          if (bird.y > bird.targetY - 200) {
-            setMovementAnimation('down');
-          }
-        }
-      }
-    }
-
-    loop.current = requestAnimationFrame(update);
+    loop.current = requestAnimationFrame(update(started, bird));
   }
 
   useEffect(() => {
@@ -56,10 +52,12 @@ export default function Bird() {
   useEffect(() => {
     cancelAnimationFrame(loop.current);
 
-    loop.current = requestAnimationFrame(update(bird));
-  }, [bird]);
+    loop.current = requestAnimationFrame(update(started, bird));
+  }, [started, bird]);
 
   return (
-    <div className={`bird ${bird.animation} ${bird.movementAnimation}`} style={{ marginTop: -bird.y }} />
+    <div ref={birdRef} className={`bird ${bird.animation} ${bird.movementAnimation}`} style={{ top: `${bird.y}px` }} />
   )
 }
+
+export default memo(Bird)

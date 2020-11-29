@@ -1,6 +1,5 @@
 .bird {
   position: absolute;
-  top: 50%;
   left: calc(45% - 40px);
 }
 
@@ -59,8 +58,9 @@
 }
 
 .down {
-  animation: bird_fly 0.3s infinite, facing_down 1.5s;
+  animation: bird_fly 0.3s infinite, facing_down 0.5s;
   animation-fill-mode: forwards;
+  transform: rotate(-22deg);
 }
 
 @keyframes facing_down {
