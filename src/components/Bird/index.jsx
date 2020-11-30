@@ -55,11 +55,7 @@ function Bird() {
 
   useEffect(() => {
     if (started) {
-      bird.speed = JUMP_SPEED;
-
       setAnimation('flying');
-
-      loop.current = requestAnimationFrame(update);
     }
   }, [started]);
 
