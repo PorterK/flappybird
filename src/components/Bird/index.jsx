@@ -1,62 +1,70 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useState, useRef, useContext, memo } from 'react';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-
-import { DRAG, GRAVITY } from 'constants.js';
-import birdState from 'atoms/bird';
-import startedState from 'atoms/started';
-import birdPositionState from 'selectors/birdPosition';
-import birdSpeedState from 'selectors/birdSpeed';
-import birdMovementAnimation from 'selectors/birdMovementAnimation';
+import { JUMP_SPEED, DRAG, GRAVITY } from 'constants.js';
+import Game from 'Game.js';
 
 import './style.css'
 
 function Bird() {
   const loop = useRef();
-  const birdRef = useRef();
 
-  const bird = useRecoilValue(birdState);
-  const started = useRecoilValue(startedState);
-  const setY = useSetRecoilState(birdPositionState);
-  const setSpeed = useSetRecoilState(birdSpeedState);
-  const setMovementAnimation = useSetRecoilState(birdMovementAnimation);
+  const { started } = useContext(Game);
 
+  const [movementAnimation, setMovementAnimation] = useState();
+  const [animation, setAnimation] = useState('floating');
 
-  const update = (started, bird) => () => {
-    if (started) {
-      let speed = bird.speed;
+  let bird = { y: window.innerHeight / 2, speed: 0 };
 
-      speed += GRAVITY;
-      speed *= DRAG;
+  const jump = () => {
+    bird.speed = JUMP_SPEED;
 
-      if (speed < 0 && bird.movementAnimation != 'up') {
-        setMovementAnimation('up');
-      }
+    cancelAnimationFrame(loop.current);
 
-      if (speed > 5 && bird.movementAnimation != 'down') {
-        setMovementAnimation('down');
-      }
+    loop.current = requestAnimationFrame(update);
+  }
 
-      setSpeed(speed);
-  
-      setY(bird.y + speed);
+  const update = () => {
+    bird.speed += GRAVITY;
+    bird.speed *= DRAG;
+
+    bird.y += bird.speed;
+
+    if (bird.speed < 0 && movementAnimation !== 'up') {
+      setMovementAnimation('up');
     }
 
-    loop.current = requestAnimationFrame(update(started, bird));
+    if (bird.speed > 5 && movementAnimation !== 'down') {
+      setMovementAnimation('down');
+    }
+
+    const element = document.getElementById('bird');
+
+    element.style.top = `${bird.y}px`;
+
+    loop.current = requestAnimationFrame(update);
   }
 
   useEffect(() => {
-    loop.current = requestAnimationFrame(update(bird));
+    document.body.addEventListener('click', jump);
+    document.body.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        jump();
+      }
+    })
   }, [])
 
   useEffect(() => {
-    cancelAnimationFrame(loop.current);
+    if (started) {
+      bird.speed = JUMP_SPEED;
 
-    loop.current = requestAnimationFrame(update(started, bird));
-  }, [started, bird]);
+      setAnimation('flying');
+
+      loop.current = requestAnimationFrame(update);
+    }
+  }, [started]);
 
   return (
-    <div ref={birdRef} className={`bird ${bird.animation} ${bird.movementAnimation}`} style={{ top: `${bird.y}px` }} />
+    <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${bird.y}px` }} />
   )
 }
 
