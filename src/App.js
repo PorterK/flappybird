@@ -26,7 +26,7 @@ function App() {
   }, []);
 
   return (
-    <Game.Provider value={{ started }}>
+    <Game.Provider value={{ started, setStarted }}>
       <Bird />
       <Pipe />
       <Ground />

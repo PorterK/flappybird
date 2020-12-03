@@ -4,7 +4,7 @@ import './style.css';
 
 export default function Ground() {
   return (
-    <div className="ground">
+    <div id="ground" className="ground">
       <div className="stripes stripes_moving" />
     </div>
   )
