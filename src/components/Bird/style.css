@@ -1,6 +1,7 @@
 .bird {
   position: absolute;
   left: calc(45% - 40px);
+  z-index: 9999;
 }
 
 .bird-hitbox:after {

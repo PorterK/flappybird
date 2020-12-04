@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext, memo } from 'react';
 
 import { JUMP_SPEED, DRAG, GRAVITY } from 'constants.js';
 import Game from 'Game.js';
-import { getBirdHitbox, getFloorHitbox } from 'helpers/hitbox';
+import { getBirdHitbox, getFloorHitbox, getPipeHitbox } from 'helpers/hitbox';
 import intersect from 'helpers/intersect';
 
 import './style.css'
@@ -10,7 +10,7 @@ import './style.css'
 function Bird() {
   const loop = useRef();
 
-  const { started, setGameOver } = useContext(Game);
+  const { started, setStarted } = useContext(Game);
 
   const [movementAnimation, setMovementAnimation] = useState();
   const [animation, setAnimation] = useState('floating');
@@ -37,13 +37,6 @@ function Bird() {
 
     bird.y += bird.speed;
 
-    const birdHitbox = getBirdHitbox();
-    const floorHitbox = getFloorHitbox();
-
-    if (intersect(birdHitbox, floorHitbox)) {
-      gameOver = true;
-    }
-
     if (bird.speed < 0 && movementAnimation !== 'up') {
       setMovementAnimation('up');
     }
@@ -55,6 +48,27 @@ function Bird() {
     const element = document.getElementById('bird');
 
     element.style.top = `${bird.y}px`;
+
+    const birdHitbox = getBirdHitbox();
+    const floorHitbox = getFloorHitbox();
+
+    if (intersect(birdHitbox, floorHitbox)) {
+      gameOver = true;
+
+      setStarted(false)
+    }
+
+    const pipes = [...document.getElementsByClassName('pipe')];
+
+    pipes.forEach((pipe) => {
+      const pipeHitbox = getPipeHitbox(pipe);
+
+      if (intersect(birdHitbox, pipeHitbox)) {
+        gameOver = true;
+
+        setStarted(false);
+      }
+    });
 
     loop.current = requestAnimationFrame(update);
   }
@@ -79,7 +93,7 @@ function Bird() {
   }, [started]);
 
   return (
-    <div id="bird" className={`bird bird-hitbox ${animation} ${movementAnimation}`} style={{ top: `${bird.y}px` }} />
+    <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${bird.y}px` }} />
   )
 }
 

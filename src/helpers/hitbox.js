@@ -13,3 +13,9 @@ export const getFloorHitbox = () => {
 
   return { top, bottom, left, right };
 }
+
+export const getPipeHitbox = (pipe) => {
+  const { top, bottom, left, right } = pipe.getBoundingClientRect();
+
+  return { top, bottom, left, right };
+}

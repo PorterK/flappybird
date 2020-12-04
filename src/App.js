@@ -2,17 +2,20 @@ import React, { useEffect, useState } from 'react';
 
 import './App.css';
 import Bird from './components/Bird';
-import Pipe from './components/Pipe';
+import Pipes from './components/Pipes';
 import Ground from './components/Ground';
 
 import Game from './Game';
 
 function App() {
   const [started, setStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [moving, setMoving] = useState(true);
 
   const handleInput = () => {
     if (!started) {
       setStarted(true);
+      setHasStarted(true);
     }
   }
 
@@ -25,11 +28,17 @@ function App() {
     })
   }, []);
 
+  useEffect(() => {
+    if (hasStarted && !started) {
+      setMoving(false);
+    }
+  }, [started]);
+
   return (
     <Game.Provider value={{ started, setStarted }}>
       <Bird />
-      <Pipe />
-      <Ground />
+      <Pipes />
+      <Ground moving={moving} />
     </ Game.Provider>
   );
 }
