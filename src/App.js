@@ -41,7 +41,7 @@ function App() {
     <Game.Provider value={{ started, setStarted, gameOver, setGameOver }}>
       <Bird />
       <Pipes />
-      <Ground moving={moving} />
+      <Ground moving={!gameOver} />
     </ Game.Provider>
   );
 }

@@ -3,7 +3,7 @@ export const getBirdHitbox = () => {
 
   const pos = elem.getBoundingClientRect();
 
-  return { top: pos.top + 8, bottom: pos.bottom + 47, left: pos.left + 14, right: pos.right + 33 };
+  return { top: pos.top + 8, bottom: pos.bottom + 45, left: pos.left + 14, right: pos.right + 33 };
 }
 
 export const getFloorHitbox = () => {

@@ -52,11 +52,10 @@ function Bird() {
 
   useEffect(() => {
     if (gameOver) {
-      document.body.removeEventListener('touchstart', jump, true);
-      document.body.removeEventListener('click', jump, true);
-      document.body.removeEventListener('keyup', handleSpaceBar, true);
+      // Hacky way to remove our click/spacebar/touch events
+      const bodyClone = document.body.cloneNode(true);
 
-      setAnimation('');
+      document.body.parentNode.replaceChild(bodyClone, document.body);
     }
   }, [gameOver])
 
@@ -80,7 +79,7 @@ function Bird() {
     if (speed > 5 && movementAnimation !== 'down') {
       setMovementAnimation('down');
     }
-  }, [speed]);
+  }, [speed, movementAnimation]);
 
   useEffect(() => {
     const birdHitbox = getBirdHitbox();
@@ -88,7 +87,10 @@ function Bird() {
 
     if (intersect(birdHitbox, floorHitbox)) {
       setGameOver(true)
+      setSpeed(0)
     }
+
+    if (gameOver) return;
 
     const pipes = [...document.getElementsByClassName('pipe')];
 
@@ -96,10 +98,11 @@ function Bird() {
       const pipeHitbox = getPipeHitbox(pipe);
 
       if (intersect(birdHitbox, pipeHitbox)) {
+        console.log(pipe, birdHitbox, pipeHitbox);
         setGameOver(true)
       }
     });
-  }, [yPos]);
+  });
 
   return (
     <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${yPos}px` }} />
