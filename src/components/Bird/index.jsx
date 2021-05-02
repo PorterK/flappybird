@@ -9,20 +9,18 @@ import './style.css'
 
 function Bird() {
   const loop = useRef();
+  const [yPos, setYPos] = useState(window.innerHeight / 2);
+  const [speed, setSpeed] = useState(0);
 
-  const { started, setStarted } = useContext(Game);
+  const { started, gameOver, setGameOver } = useContext(Game);
 
   const [movementAnimation, setMovementAnimation] = useState();
   const [animation, setAnimation] = useState('floating');
 
-  let bird = { y: window.innerHeight / 2, speed: 0 };
-
-  let gameOver = false;
-
   const jump = () => {
     if (gameOver) return;
 
-    bird.speed = JUMP_SPEED;
+    setSpeed(JUMP_SPEED);
 
     cancelAnimationFrame(loop.current);
 
@@ -32,30 +30,64 @@ function Bird() {
   const update = () => {
     if (gameOver) return;
 
-    bird.speed += GRAVITY;
-    bird.speed *= DRAG;
+    setSpeed((currSpeed) => currSpeed + GRAVITY * DRAG);
 
-    bird.y += bird.speed;
+    loop.current = requestAnimationFrame(update);
+  }
 
-    if (bird.speed < 0 && movementAnimation !== 'up') {
+  const handleSpaceBar = (e) => {
+    if (e.code === 'Space') {
+      jump();
+    }
+  };
+
+  useEffect(() => {
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+      document.body.addEventListener('touchstart', jump, true);
+    } else {
+      document.body.addEventListener('click', jump, true);
+      document.body.addEventListener('keyup', handleSpaceBar, true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (gameOver) {
+      document.body.removeEventListener('touchstart', jump, true);
+      document.body.removeEventListener('click', jump, true);
+      document.body.removeEventListener('keyup', handleSpaceBar, true);
+
+      setAnimation('');
+    }
+  }, [gameOver])
+
+  useEffect(() => {
+    if (started && !gameOver) {
+      setAnimation('flying');
+    } else {
+      if (loop.current) {
+        cancelAnimationFrame(loop.current);
+      }
+    }
+  }, [started, gameOver]);
+
+  useEffect(() => {
+    setYPos((y) => y += speed);
+
+    if (speed < 0 && movementAnimation !== 'up') {
       setMovementAnimation('up');
     }
 
-    if (bird.speed > 5 && movementAnimation !== 'down') {
+    if (speed > 5 && movementAnimation !== 'down') {
       setMovementAnimation('down');
     }
+  }, [speed]);
 
-    const element = document.getElementById('bird');
-
-    element.style.top = `${bird.y}px`;
-
+  useEffect(() => {
     const birdHitbox = getBirdHitbox();
     const floorHitbox = getFloorHitbox();
 
     if (intersect(birdHitbox, floorHitbox)) {
-      gameOver = true;
-
-      setStarted(false)
+      setGameOver(true)
     }
 
     const pipes = [...document.getElementsByClassName('pipe')];
@@ -64,36 +96,13 @@ function Bird() {
       const pipeHitbox = getPipeHitbox(pipe);
 
       if (intersect(birdHitbox, pipeHitbox)) {
-        gameOver = true;
-
-        setStarted(false);
+        setGameOver(true)
       }
     });
-
-    loop.current = requestAnimationFrame(update);
-  }
-
-  useEffect(() => {
-    document.body.addEventListener('click', jump, true);
-    document.body.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        jump();
-      }
-    }, true);
-  }, []);
-
-  useEffect(() => {
-    if (started) {
-      setAnimation('flying');
-    } else {
-      if (loop.current) {
-        cancelAnimationFrame(loop.current);
-      }
-    }
-  }, [started]);
+  }, [yPos]);
 
   return (
-    <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${bird.y}px` }} />
+    <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${yPos}px` }} />
   )
 }
 

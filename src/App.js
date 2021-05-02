@@ -9,33 +9,36 @@ import Game from './Game';
 
 function App() {
   const [started, setStarted] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
   const [moving, setMoving] = useState(true);
 
   const handleInput = () => {
-    if (!started) {
+    if (!gameOver) {
       setStarted(true);
-      setHasStarted(true);
     }
   }
 
   useEffect(() => {
-    document.body.addEventListener('click', handleInput);
-    document.body.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        handleInput();
-      }
-    })
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+      document.body.addEventListener('touchstart', handleInput);
+    } else {
+      document.body.addEventListener('click', handleInput);
+      document.body.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          handleInput();
+        }
+      })
+    }
   }, []);
 
   useEffect(() => {
-    if (hasStarted && !started) {
+    if (gameOver) {
       setMoving(false);
     }
-  }, [started]);
+  }, [gameOver]);
 
   return (
-    <Game.Provider value={{ started, setStarted }}>
+    <Game.Provider value={{ started, setStarted, gameOver, setGameOver }}>
       <Bird />
       <Pipes />
       <Ground moving={moving} />

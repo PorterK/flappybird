@@ -59,22 +59,22 @@ function Pipes() {
   }
 
   useEffect(() => {
-    if (started) {
+    if (started && !gameOver) {
       cancelAnimationFrame(loop.current);
 
       loop.current = requestAnimationFrame(update);
     }
-  }, [started]);
+  }, [started, gameOver]);
 
   useEffect(() => {
-    if (started) {
+    if (started & !gameOver) {
       cancelAnimationFrame(loop.current);
 
       loop.current = requestAnimationFrame(update);
     } else {
       cancelAnimationFrame(loop.current);
     }
-  }, [pipes]);
+  }, [pipes, started, gameOver]);
 
   return pipes.map((pipe) => <Pipe id={pipe.id} position={pipe.position} key={pipe.id} />);
 }
