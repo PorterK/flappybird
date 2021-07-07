@@ -10,7 +10,6 @@ import Game from './Game';
 function App() {
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [moving, setMoving] = useState(true);
 
   const handleInput = () => {
     if (!gameOver) {
@@ -30,12 +29,6 @@ function App() {
       })
     }
   }, []);
-
-  useEffect(() => {
-    if (gameOver) {
-      setMoving(false);
-    }
-  }, [gameOver]);
 
   return (
     <Game.Provider value={{ started, setStarted, gameOver, setGameOver }}>

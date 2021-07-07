@@ -1,7 +1,8 @@
 .ground {
   position: absolute;
   height: 10vh;
-  height: calc(var(--vh, 1vh) * 10);
+  /* Make the ground a little bit longer to account for strangeness in rendering */
+  height: calc(var(--vh, 1vh) * 15);
   width: 100vw;
   top: 90vh;
   top: calc(var(--vh, 1vh) * 90);

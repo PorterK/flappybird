@@ -28,8 +28,6 @@ function Bird() {
   }
 
   const update = () => {
-    if (gameOver) return;
-
     setSpeed((currSpeed) => currSpeed + GRAVITY * DRAG);
 
     loop.current = requestAnimationFrame(update);
@@ -51,21 +49,14 @@ function Bird() {
   }, []);
 
   useEffect(() => {
-    if (gameOver) {
-      // Hacky way to remove our click/spacebar/touch events
-      const bodyClone = document.body.cloneNode(true);
-
-      document.body.parentNode.replaceChild(bodyClone, document.body);
+    if (gameOver) {      
+      setAnimation('gameOver', () => setMovementAnimation(null));
     }
   }, [gameOver])
 
   useEffect(() => {
     if (started && !gameOver) {
       setAnimation('flying');
-    } else {
-      if (loop.current) {
-        cancelAnimationFrame(loop.current);
-      }
     }
   }, [started, gameOver]);
 
@@ -79,7 +70,7 @@ function Bird() {
     if (speed > 5 && movementAnimation !== 'down') {
       setMovementAnimation('down');
     }
-  }, [speed, movementAnimation]);
+  }, [speed, movementAnimation, gameOver]);
 
   useEffect(() => {
     const birdHitbox = getBirdHitbox();
@@ -88,24 +79,28 @@ function Bird() {
     if (intersect(birdHitbox, floorHitbox)) {
       setGameOver(true)
       setSpeed(0)
+      cancelAnimationFrame(loop.current);
     }
 
     if (gameOver) return;
 
-    const pipes = [...document.getElementsByClassName('pipe')];
+    const pipes = Array.from(document.getElementsByClassName('pipe'));
 
-    pipes.forEach((pipe) => {
+    pipes.forEach((pipe, index) => {
+      if (pipes.length > 4 && (index  < 2 || index > 4)) return;
+
       const pipeHitbox = getPipeHitbox(pipe);
 
       if (intersect(birdHitbox, pipeHitbox)) {
-        console.log(pipe, birdHitbox, pipeHitbox);
-        setGameOver(true)
+        setGameOver(true);
       }
     });
   });
 
+  const className = gameOver ? 'bird gameOver' : `bird ${animation} ${movementAnimation}`
+
   return (
-    <div id="bird" className={`bird ${animation} ${movementAnimation}`} style={{ top: `${yPos}px` }} />
+    <div id="bird" className={className} style={{ top: `${yPos}px`, left: `${gameOver ? 'calc(45% + 40px)' : 'calc(45% - 40px)'}` }} />
   )
 }
 
