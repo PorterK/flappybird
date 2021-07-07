@@ -49,19 +49,23 @@ function Bird() {
   }, []);
 
   useEffect(() => {
-    if (gameOver) {      
-      setAnimation('gameOver', () => setMovementAnimation(null));
-    }
-  }, [gameOver])
-
-  useEffect(() => {
     if (started && !gameOver) {
       setAnimation('flying');
     }
   }, [started, gameOver]);
 
   useEffect(() => {
-    setYPos((y) => y += speed);
+    if (gameOver && speed < 0) return;
+
+    const floorHitbox = getFloorHitbox();
+
+    setYPos((y) => {
+      if ((y + 30) + speed > floorHitbox.top) {
+        return y;
+      }
+
+      return y += speed;
+    });
 
     if (speed < 0 && movementAnimation !== 'up') {
       setMovementAnimation('up');
@@ -73,16 +77,16 @@ function Bird() {
   }, [speed, movementAnimation, gameOver]);
 
   useEffect(() => {
+    if (gameOver) return;
+
     const birdHitbox = getBirdHitbox();
     const floorHitbox = getFloorHitbox();
 
     if (intersect(birdHitbox, floorHitbox)) {
-      setGameOver(true)
-      setSpeed(0)
+      setGameOver(true);
+      setSpeed(0);
       cancelAnimationFrame(loop.current);
     }
-
-    if (gameOver) return;
 
     const pipes = Array.from(document.getElementsByClassName('pipe'));
 
@@ -96,6 +100,18 @@ function Bird() {
       }
     });
   });
+
+  useEffect(() => {
+    if (gameOver) {
+      setAnimation('gameOver');
+    };
+  }, [gameOver]);
+
+  useEffect(() => {
+    if (animation === 'gameOver') {
+      setMovementAnimation(null);
+    }
+  }, [animation])
 
   const className = gameOver ? 'bird gameOver' : `bird ${animation} ${movementAnimation}`
 
