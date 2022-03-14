@@ -1,3 +1,5 @@
+import { Point, Line, Box } from './box';
+
 export const getBirdHitbox = (debug = false) => {
   const elem = document.getElementById('bird');
 
@@ -8,33 +10,37 @@ export const getBirdHitbox = (debug = false) => {
     ?.split('(')[1]
     ?.split(')')[0]
     ?.split(',');
+
+  if (!matrix) return;
     
-  const angle = matrix && Math.round(Math.atan2(matrix[1], matrix[0]) * (180/Math.PI));
+  const angleRad = Math.atan2(matrix[1], matrix[0]);
 
-  const border = { top: pos.top + 25, bottom: pos.bottom + 75, left: pos.left + 10, right: pos.right + 55 };
+  const normalizedRadians = angleRad + (Math.PI / 2);
 
-  if (angle === -22) {
-    border.top = pos.top + 10;
-    border.left = pos.left + 25;
-    border.right = pos.right + 65;
-    border.bottom = pos.bottom + 50; 
+  const angleDeg = Math.round(normalizedRadians * (180 / Math.PI));
+
+  // The math below this point is sketchy but good enough
+  let xMod = 20;
+  let yMod = 13;
+
+  if (angleDeg > 45 && angleRad > 0) {
+    xMod = 30;
+    yMod = -20;
   }
 
-  if (angle > 75) {
-    border.left = pos.left - 50;
-    border.right = pos.right - 15;
-  }
+  const topLeft = new Point(pos.top + xMod, pos.left + yMod);
+  const topRight = topLeft.atAngle(normalizedRadians, 55);
 
-  if (debug) {
-    const hitbox = document.createElement('div');
+  const bottomRight = new Point(topLeft.x + 35, topLeft.y);
+  const bottomLeft = bottomRight.atAngle(normalizedRadians, 55);
 
-    hitbox.className = 'red-border';
-    hitbox.style = `position: absolute; top: ${border.top}px; left: ${border.left}px; height: ${border.bottom - border.top}px; width: ${border.right - border.left}px; z-index: 9999999;`
+  const top = new Line(topLeft, topRight);
+  const right = new Line(topRight, bottomRight);
+  const bottom = new Line(bottomRight, bottomLeft);
+  const left = new Line(bottomLeft, topLeft);
 
-    document.body.appendChild(hitbox);
-  }
 
-  return border;
+  return new Box(top, right, bottom, left);
 }
 
 export const getFloorHitbox = () => {
@@ -42,20 +48,31 @@ export const getFloorHitbox = () => {
 
   const { top, bottom, left, right } = elem.getBoundingClientRect();
 
-  return { top, bottom, left, right };
+  const topLeft = new Point(left, top);
+  const topRight = new Point(right, top);
+  const bottomLeft = new Point(left, bottom);
+  const bottomRight = new Point(right, bottom);
+
+  const topLine = new Line(topLeft, topRight);
+  const rightLine = new Line(topRight, bottomRight);
+  const bottomLine = new Line(bottomRight, bottomLeft);
+  const leftLine = new Line(bottomLeft, topLeft);
+
+  return new Box(topLine, rightLine, bottomLine, leftLine);
 }
 
-export const getPipeHitbox = (pipe, debug = false) => {
+export const getPipeHitbox = (pipe) => {
   const { top, bottom, left, right } = pipe.getBoundingClientRect();
 
-  if (debug) {
-    const hitbox = document.createElement('div');
+  const topLeft = new Point(top + 10, left);
+  const topRight = new Point(top + 10, right);
+  const bottomLeft = new Point(bottom, left);
+  const bottomRight = new Point(bottom, right);
 
-    hitbox.className = 'red-border';
-    hitbox.style = `position: absolute; top: ${top + 10}px; left: ${left}px; height: ${bottom - top}px; width: ${right - left}px; z-index: 9999999;`
+  const topLine = new Line(topLeft, topRight);
+  const rightLine = new Line(topRight, bottomRight);
+  const bottomLine = new Line(bottomRight, bottomLeft);
+  const leftLine = new Line(bottomLeft, topLeft);
 
-    document.body.appendChild(hitbox);
-  }
-
-  return { top: top + 10, bottom, left, right };
+  return new Box(topLine, rightLine, bottomLine, leftLine);
 }

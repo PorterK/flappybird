@@ -10,6 +10,7 @@ import './style.css'
 function Bird() {
   const loop = useRef();
   const [yPos, setYPos] = useState(window.innerHeight / 2);
+  const [maxY, setMaxY] = useState(5000);
   const [speed, setSpeed] = useState(0);
 
   const { started, gameOver, setGameOver } = useContext(Game);
@@ -49,6 +50,18 @@ function Bird() {
   }, []);
 
   useEffect(() => {
+    if (gameOver) {
+      window.addEventListener('click', function(event) {
+        event.stopImmediatePropagation();
+      }, true);
+
+      window.addEventListener('keyup', function(event) {
+        event.stopImmediatePropagation();
+      }, true);
+    }
+  }, [gameOver]);
+
+  useEffect(() => {
     if (started && !gameOver) {
       setAnimation('flying');
     }
@@ -59,9 +72,11 @@ function Bird() {
 
     const floorHitbox = getFloorHitbox();
 
+    setMaxY(floorHitbox.top.p2.y);
+
     setYPos((y) => {
-      if ((y + 30) + speed > floorHitbox.top) {
-        return y;
+      if ((y + 30) + speed > maxY) {
+        cancelAnimationFrame(loop.curent);
       }
 
       return y += speed;
@@ -74,7 +89,7 @@ function Bird() {
     if (speed > 5 && movementAnimation !== 'down') {
       setMovementAnimation('down');
     }
-  }, [speed, movementAnimation, gameOver]);
+  }, [speed, movementAnimation, gameOver, maxY]);
 
   useEffect(() => {
     if (gameOver) return;
@@ -82,7 +97,10 @@ function Bird() {
     const birdHitbox = getBirdHitbox();
     const floorHitbox = getFloorHitbox();
 
-    if (intersect(birdHitbox, floorHitbox)) {
+    // birdHitbox?.debug('bird');
+    // floorHitbox.debug('flood');
+
+    if (birdHitbox?.intersects(floorHitbox)) {
       setGameOver(true);
       setSpeed(0);
       cancelAnimationFrame(loop.current);
@@ -91,11 +109,11 @@ function Bird() {
     const pipes = Array.from(document.getElementsByClassName('pipe'));
 
     pipes.forEach((pipe, index) => {
-      if (pipes.length > 4 && (index  < 2 || index > 4)) return;
-
       const pipeHitbox = getPipeHitbox(pipe);
 
-      if (intersect(birdHitbox, pipeHitbox)) {
+      // pipeHitbox.debug(`pipe-${index}`);
+
+      if (birdHitbox?.intersects(pipeHitbox)) {
         setGameOver(true);
       }
     });
@@ -116,7 +134,7 @@ function Bird() {
   const className = gameOver ? 'bird gameOver' : `bird ${animation} ${movementAnimation}`
 
   return (
-    <div id="bird" className={className} style={{ top: `${yPos}px`, left: `${gameOver ? 'calc(45% + 40px)' : 'calc(45% - 40px)'}` }} />
+    <div id="bird" className={className} style={{ top: `${yPos < maxY ? yPos : maxY}px`, left: `${gameOver ? 'calc(45% + 40px)' : 'calc(45% - 40px)'}` }} />
   )
 }
 
